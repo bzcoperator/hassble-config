@@ -377,6 +377,28 @@ templates:
           accuracy_decimals: 1
           pre_commands: ["ATSH752"]
           update_interval: 30s
+        # Trip odometer probes -- check which PID returns distance driven this trip
+        # D8C5/D8C6 are candidates adjacent to fuel PIDs; formula TBD after car test
+        - key: trip_probe_d8c5
+          mode: "22"
+          pid: "D8C5"
+          formula: "(a*256+b)"
+          unit: ""
+          state_class: measurement
+          accuracy_decimals: 0
+          entity_category: diagnostic
+          pre_commands: ["ATSH752"]
+          update_interval: 30s
+        - key: trip_probe_d8c6
+          mode: "22"
+          pid: "D8C6"
+          formula: "(a*256+b)"
+          unit: ""
+          state_class: measurement
+          accuracy_decimals: 0
+          entity_category: diagnostic
+          pre_commands: ["ATSH752"]
+          update_interval: 30s
         # DPF sensors -- EDC17C60, PIDs unverified (sourced from MD1CS003 captures)
         # Try header 6AB if 6A8 returns NO DATA
         - key: dpf_soot_mass
