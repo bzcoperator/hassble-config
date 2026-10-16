@@ -207,6 +207,237 @@ devices:
   # ──────────────────────────────────────────────────────────────
   # Path C: OBD (ELM327) over BLE
   # ──────────────────────────────────────────────────────────────
+
+  # Peugeot 2008 1.6 HDi (2017) — PSA CAN mode 22 PIDs
+  # Vgate iCar Pro 2S (FFE0/FFE1). Engine ECU header 0x6A8, BSI header 0x752.
+  # PIDs sourced from nico1080/OBD-LCD-display-for-PSA (DS4 petrol base — some may need tuning on EDC17C60 diesel).
+  - id: psa_2008_hdi
+    name: "Peugeot 2008 HDi"
+    source: obd
+    obd:
+      service_uuid: "FFE0"
+      tx_char_uuid: "FFE1"
+      rx_char_uuid: "FFE1"
+      tx_delay: 100ms
+      init_commands:
+        - "ATZ"
+        - "ATE0"
+        - "ATL0"
+        - "ATS0"
+        - "ATH0"
+        - "ATSP6"
+        - "ATSH6A8"
+      default_commands:
+        - "ATSH6A8"
+    sensors:
+      - key: rpm
+        mode: "22"
+        pid: "D400"
+        formula: "a*256+b"
+        unit: "rpm"
+        state_class: measurement
+        update_interval: 2s
+      - key: gear
+        mode: "22"
+        pid: "D409"
+        formula: "a"
+        unit: ""
+        state_class: measurement
+        update_interval: 2s
+      - key: water_temp
+        mode: "22"
+        pid: "D40A"
+        formula: "a*256+b"
+        unit: "°C"
+        device_class: temperature
+        state_class: measurement
+        update_interval: 10s
+      - key: water_temp_setpoint
+        mode: "22"
+        pid: "D40D"
+        formula: "a*256+b"
+        unit: "°C"
+        device_class: temperature
+        state_class: measurement
+        entity_category: diagnostic
+        update_interval: 30s
+      - key: intake_air_temp
+        mode: "22"
+        pid: "D411"
+        formula: "a*0.75-48"
+        unit: "°C"
+        device_class: temperature
+        state_class: measurement
+        update_interval: 10s
+      - key: oil_pressure
+        mode: "22"
+        pid: "D429"
+        formula: "(a*256+b)*0.00076294-0.25"
+        unit: "bar"
+        state_class: measurement
+        accuracy_decimals: 2
+        update_interval: 5s
+      - key: turbo_pressure
+        mode: "22"
+        pid: "D47E"
+        formula: "(a*256+b)/12500"
+        unit: "bar"
+        state_class: measurement
+        accuracy_decimals: 2
+        update_interval: 2s
+      - key: turbo_pressure_setpoint
+        mode: "22"
+        pid: "D48D"
+        formula: "(a*256+b)/12500"
+        unit: "bar"
+        state_class: measurement
+        accuracy_decimals: 2
+        entity_category: diagnostic
+        update_interval: 5s
+      - key: turbo_temp
+        mode: "22"
+        pid: "D47F"
+        formula: "(a*256+b)*0.0234375-273.15"
+        unit: "°C"
+        device_class: temperature
+        state_class: measurement
+        accuracy_decimals: 1
+        update_interval: 10s
+      - key: airflow
+        mode: "22"
+        pid: "D489"
+        formula: "(a*256+b)*0.01526"
+        unit: "g/s"
+        state_class: measurement
+        accuracy_decimals: 1
+        update_interval: 2s
+      - key: airflow_setpoint
+        mode: "22"
+        pid: "D48E"
+        formula: "(a*256+b)*0.01526"
+        unit: "g/s"
+        state_class: measurement
+        accuracy_decimals: 1
+        entity_category: diagnostic
+        update_interval: 5s
+      - key: map_pressure
+        mode: "22"
+        pid: "D4D9"
+        formula: "(a*256+b)*0.00078125"
+        unit: "bar"
+        state_class: measurement
+        accuracy_decimals: 2
+        update_interval: 2s
+      - key: torque
+        mode: "22"
+        pid: "D728"
+        formula: "(a*256+b)/16"
+        unit: "Nm"
+        state_class: measurement
+        accuracy_decimals: 0
+        update_interval: 2s
+      # BSI — switch header to 0x752
+      - key: oil_temp
+        mode: "22"
+        pid: "DB83"
+        formula: "a-40"
+        unit: "°C"
+        device_class: temperature
+        state_class: measurement
+        pre_commands: ["ATSH752"]
+        update_interval: 10s
+      - key: oil_level
+        mode: "22"
+        pid: "DB84"
+        formula: "a"
+        unit: "%"
+        state_class: measurement
+        pre_commands: ["ATSH752"]
+        update_interval: 60s
+      - key: battery_voltage
+        mode: "22"
+        pid: "DA46"
+        formula: "(a*256+b)/1000"
+        unit: "V"
+        device_class: voltage
+        state_class: measurement
+        accuracy_decimals: 2
+        pre_commands: ["ATSH752"]
+        update_interval: 10s
+      - key: battery_temp
+        mode: "22"
+        pid: "DA47"
+        formula: "a-40"
+        unit: "°C"
+        device_class: temperature
+        state_class: measurement
+        entity_category: diagnostic
+        pre_commands: ["ATSH752"]
+        update_interval: 30s
+      - key: battery_load
+        mode: "22"
+        pid: "DA21"
+        formula: "a"
+        unit: "%"
+        state_class: measurement
+        entity_category: diagnostic
+        pre_commands: ["ATSH752"]
+        update_interval: 30s
+      - key: fuel_level
+        mode: "22"
+        pid: "D8C4"
+        formula: "(a*256+b)/100"
+        unit: "L"
+        state_class: measurement
+        accuracy_decimals: 1
+        pre_commands: ["ATSH752"]
+        publish:
+          deadband: 0.5
+          min_interval: 30s
+          heartbeat: 10m
+        update_interval: 30s
+      - key: fuel_consumption_instant
+        mode: "22"
+        pid: "D8C7"
+        formula: "(a*256+b)/10"
+        unit: "L/100km"
+        state_class: measurement
+        accuracy_decimals: 1
+        pre_commands: ["ATSH752"]
+        update_interval: 5s
+      - key: fuel_consumption_trip
+        mode: "22"
+        pid: "D8C8"
+        formula: "(a*256+b)/10"
+        unit: "L/100km"
+        state_class: measurement
+        accuracy_decimals: 1
+        entity_category: diagnostic
+        pre_commands: ["ATSH752"]
+        update_interval: 30s
+      - key: range_remaining
+        mode: "22"
+        pid: "D8E1"
+        formula: "a*256+b"
+        unit: "km"
+        device_class: distance
+        state_class: measurement
+        pre_commands: ["ATSH752"]
+        publish:
+          deadband: 2
+          min_interval: 60s
+        update_interval: 30s
+      - key: external_temp
+        mode: "22"
+        pid: "D912"
+        formula: "a*0.5-40"
+        unit: "°C"
+        device_class: temperature
+        state_class: measurement
+        accuracy_decimals: 1
+        pre_commands: ["ATSH752"]
+        update_interval: 30s
+
   - id: car_obd
     name: "Vehicle OBD"
     source: obd
