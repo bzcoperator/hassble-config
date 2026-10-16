@@ -148,8 +148,8 @@ templates:
           decode: { offset: 18, length: 0, type: string }
 
   - id: obd_psa_2008_hdi
-    name: "Peugeot 2008 1.6 HDi (2017) — PSA CAN mode 22"
-    description: "Engine ECU (0x6A8) + BSI (0x752) via Vgate iCar Pro 2S. PIDs from nico1080/OBD-LCD-display-for-PSA — some may need tuning on EDC17C60 diesel."
+    name: "Peugeot 2008 1.6 HDi (2017) - PSA CAN mode 22"
+    description: "Engine ECU (0x6A8) + BSI (0x752) via Vgate iCar Pro 2S. PIDs from nico1080/OBD-LCD-display-for-PSA - some may need tuning on EDC17C60 diesel."
     device:
       id: psa_2008_hdi
       name: "Peugeot 2008 HDi"

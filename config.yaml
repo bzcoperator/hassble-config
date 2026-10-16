@@ -208,9 +208,9 @@ devices:
   # Path C: OBD (ELM327) over BLE
   # ──────────────────────────────────────────────────────────────
 
-  # Peugeot 2008 1.6 HDi (2017) — PSA CAN mode 22 PIDs
+  # Peugeot 2008 1.6 HDi (2017) - PSA CAN mode 22 PIDs
   # Vgate iCar Pro 2S (FFE0/FFE1). Engine ECU header 0x6A8, BSI header 0x752.
-  # PIDs sourced from nico1080/OBD-LCD-display-for-PSA (DS4 petrol base — some may need tuning on EDC17C60 diesel).
+  # PIDs sourced from nico1080/OBD-LCD-display-for-PSA (DS4 petrol base - some may need tuning on EDC17C60 diesel).
   - id: psa_2008_hdi
     name: "Peugeot 2008 HDi"
     source: obd
