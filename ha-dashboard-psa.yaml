@@ -7,19 +7,19 @@ cards:
   - type: custom:mushroom-chips-card
     chips:
       - type: entity
-        entity: sensor.cph2791_peugeot_2008_hdi_rpm
+        entity: sensor.psa_2008_hdi_rpm
         icon: mdi:engine
         content_info: state
       - type: entity
-        entity: sensor.cph2791_peugeot_2008_hdi_gear
+        entity: sensor.psa_2008_hdi_gear
         icon: mdi:car-shift-pattern
         content_info: state
       - type: entity
-        entity: sensor.cph2791_peugeot_2008_hdi_water_temp
+        entity: sensor.psa_2008_hdi_water_temp
         icon: mdi:thermometer
         content_info: state
       - type: entity
-        entity: sensor.cph2791_peugeot_2008_hdi_external_temp
+        entity: sensor.psa_2008_hdi_external_temp
         icon: mdi:thermometer-lines
         content_info: state
 
@@ -27,13 +27,13 @@ cards:
   - type: horizontal-stack
     cards:
       - type: custom:mushroom-entity-card
-        entity: sensor.cph2791_peugeot_2008_hdi_fuel_level
+        entity: sensor.psa_2008_hdi_fuel_level
         name: Fuel
         icon: mdi:gas-station
         primary_info: state
         secondary_info: last-changed
       - type: custom:mushroom-entity-card
-        entity: sensor.cph2791_peugeot_2008_hdi_range_remaining
+        entity: sensor.psa_2008_hdi_range_remaining
         name: Range
         icon: mdi:map-marker-distance
         primary_info: state
@@ -42,9 +42,9 @@ cards:
   # ── Fuel history graph ───────────────────────────────────────────
   - type: custom:mini-graph-card
     entities:
-      - entity: sensor.cph2791_peugeot_2008_hdi_fuel_level
+      - entity: sensor.psa_2008_hdi_fuel_level
         name: Fuel (L)
-      - entity: sensor.cph2791_peugeot_2008_hdi_range_remaining
+      - entity: sensor.psa_2008_hdi_range_remaining
         name: Range (km)
         y_axis: secondary
     name: Fuel & Range History
@@ -60,17 +60,17 @@ cards:
   - type: horizontal-stack
     cards:
       - type: custom:mushroom-entity-card
-        entity: sensor.cph2791_peugeot_2008_hdi_turbo_pressure
+        entity: sensor.psa_2008_hdi_turbo_pressure
         name: Turbo
         icon: mdi:gauge
         primary_info: state
       - type: custom:mushroom-entity-card
-        entity: sensor.cph2791_peugeot_2008_hdi_oil_pressure
+        entity: sensor.psa_2008_hdi_oil_pressure
         name: Oil Pressure
         icon: mdi:oil
         primary_info: state
       - type: custom:mushroom-entity-card
-        entity: sensor.cph2791_peugeot_2008_hdi_intake_air_temp
+        entity: sensor.psa_2008_hdi_intake_air_temp
         name: Intake
         icon: mdi:air-filter
         primary_info: state
@@ -78,17 +78,17 @@ cards:
   - type: horizontal-stack
     cards:
       - type: custom:mushroom-entity-card
-        entity: sensor.cph2791_peugeot_2008_hdi_oil_temp
+        entity: sensor.psa_2008_hdi_oil_temp
         name: Oil Temp
         icon: mdi:oil-temperature
         primary_info: state
       - type: custom:mushroom-entity-card
-        entity: sensor.cph2791_peugeot_2008_hdi_turbo_temp
+        entity: sensor.psa_2008_hdi_turbo_temp
         name: Turbo Temp
         icon: mdi:thermometer-high
         primary_info: state
       - type: custom:mushroom-entity-card
-        entity: sensor.cph2791_peugeot_2008_hdi_torque
+        entity: sensor.psa_2008_hdi_torque
         name: Torque
         icon: mdi:rotate-right
         primary_info: state
@@ -97,12 +97,12 @@ cards:
   - type: horizontal-stack
     cards:
       - type: custom:mushroom-entity-card
-        entity: sensor.cph2791_peugeot_2008_hdi_fuel_consumption_instant
+        entity: sensor.psa_2008_hdi_fuel_consumption_instant
         name: Instant
         icon: mdi:fuel
         primary_info: state
       - type: custom:mushroom-entity-card
-        entity: sensor.cph2791_peugeot_2008_hdi_fuel_consumption_trip
+        entity: sensor.psa_2008_hdi_fuel_consumption_trip
         name: Trip avg
         icon: mdi:fuel
         primary_info: state
@@ -111,17 +111,17 @@ cards:
   - type: horizontal-stack
     cards:
       - type: custom:mushroom-entity-card
-        entity: sensor.cph2791_peugeot_2008_hdi_battery_voltage
+        entity: sensor.psa_2008_hdi_battery_voltage
         name: Battery
         icon: mdi:battery
         primary_info: state
       - type: custom:mushroom-entity-card
-        entity: sensor.cph2791_peugeot_2008_hdi_battery_temp
+        entity: sensor.psa_2008_hdi_battery_temp
         name: Batt Temp
         icon: mdi:thermometer
         primary_info: state
       - type: custom:mushroom-entity-card
-        entity: sensor.cph2791_peugeot_2008_hdi_battery_load
+        entity: sensor.psa_2008_hdi_battery_load
         name: Batt Load
         icon: mdi:battery-charging
         primary_info: state
@@ -130,7 +130,7 @@ cards:
   - type: horizontal-stack
     cards:
       - type: custom:mushroom-entity-card
-        entity: sensor.cph2791_peugeot_2008_hdi_oil_level
+        entity: sensor.psa_2008_hdi_oil_level
         name: Oil Level
         icon: mdi:oil-level
         primary_info: state
@@ -140,15 +140,15 @@ cards:
     title: DPF (unverified PIDs)
     show_header_toggle: false
     entities:
-      - entity: sensor.cph2791_peugeot_2008_hdi_dpf_soot_mass
+      - entity: sensor.psa_2008_hdi_dpf_soot_mass
         name: Soot Mass
-      - entity: sensor.cph2791_peugeot_2008_hdi_dpf_regen_distance
+      - entity: sensor.psa_2008_hdi_dpf_regen_distance
         name: Regen Distance
-      - entity: sensor.cph2791_peugeot_2008_hdi_dpf_ash_rate
+      - entity: sensor.psa_2008_hdi_dpf_ash_rate
         name: Ash Rate
-      - entity: sensor.cph2791_peugeot_2008_hdi_dpf_damage_rate
+      - entity: sensor.psa_2008_hdi_dpf_damage_rate
         name: Damage Rate
-      - entity: sensor.cph2791_peugeot_2008_hdi_trip_probe_d8c5
+      - entity: sensor.psa_2008_hdi_trip_probe_d8c5
         name: Trip Probe D8C5
-      - entity: sensor.cph2791_peugeot_2008_hdi_trip_probe_d8c6
+      - entity: sensor.psa_2008_hdi_trip_probe_d8c6
         name: Trip Probe D8C6
