@@ -215,9 +215,9 @@ devices:
     name: "Peugeot 2008 HDi"
     source: obd
     obd:
-      service_uuid: "FFE0"
-      tx_char_uuid: "FFE1"
-      rx_char_uuid: "FFE1"
+      service_uuid: "18F0"
+      tx_char_uuid: "2AF1"
+      rx_char_uuid: "2AF0"
       tx_delay: 100ms
       init_commands:
         - "ATZ"
