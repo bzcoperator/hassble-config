@@ -261,15 +261,17 @@ devices:
         state_class: measurement
         entity_category: diagnostic
         update_interval: 30s
-      # intake_air_temp (D411) — NRC 31 (requestOutOfRange) on every poll: PID not supported on this EDC17C60
-      #- key: intake_air_temp
-      #  mode: "22"
-      #  pid: "D411"
-      #  formula: "a*0.75-48"
-      #  unit: "°C"
-      #  device_class: temperature
-      #  state_class: measurement
-      #  update_interval: 10s
+      # intake_air_temp: D411 = MAP temperature (NRC 31 on EDC17C60, not supported)
+      # D414 = actual intake air temp (2 bytes) — sourced from nico1080/OBD-LCD-display-for-PSA
+      # Formula unknown for diesel — using raw value initially to observe; adjust once data is seen
+      - key: intake_air_temp
+        mode: "22"
+        pid: "D414"
+        formula: "a*256+b"
+        unit: "°C"
+        device_class: temperature
+        state_class: measurement
+        update_interval: 10s
       - key: oil_pressure
         mode: "22"
         pid: "D429"
@@ -338,11 +340,9 @@ devices:
         state_class: measurement
         accuracy_decimals: 0
         update_interval: 2s
-      # BSI — switch header to 0x752, explicitly set receive filter to 0x75A (0x752+8)
-      # NOTE: All BSI PIDs returned NO DATA in initial testing. Two possible causes:
-      #   1. BSI requires a UDS diagnostic session (10 03) before accepting mode 22 — not possible via hassble pre_commands
-      #   2. BSI on this specific car (2017 2008 HDi) uses different PID addresses
-      # ATCRA75A added to explicitly set ELM327 receive filter — remove if it causes issues
+      # BSI — switch header to 0x752, receive filter to 0x652 (PSA BSI responds from 0x652, not 0x752+8=0x75A)
+      # Source: nico1080/OBD-LCD-display-for-PSA — CanRequest(0x752, 0x652, ...) confirms non-standard response address
+      # All BSI PIDs returned NO DATA with ATCRA75A — corrected to ATCRA652
       - key: oil_temp
         mode: "22"
         pid: "DB83"
@@ -350,7 +350,7 @@ devices:
         unit: "°C"
         device_class: temperature
         state_class: measurement
-        pre_commands: ["ATSH752", "ATCRA75A"]
+        pre_commands: ["ATSH752", "ATCRA652"]
         update_interval: 10s
       - key: oil_level
         mode: "22"
@@ -358,7 +358,7 @@ devices:
         formula: "a"
         unit: "%"
         state_class: measurement
-        pre_commands: ["ATSH752", "ATCRA75A"]
+        pre_commands: ["ATSH752", "ATCRA652"]
         update_interval: 60s
       - key: battery_voltage
         mode: "22"
@@ -368,7 +368,7 @@ devices:
         device_class: voltage
         state_class: measurement
         accuracy_decimals: 2
-        pre_commands: ["ATSH752", "ATCRA75A"]
+        pre_commands: ["ATSH752", "ATCRA652"]
         update_interval: 10s
       - key: battery_temp
         mode: "22"
@@ -378,7 +378,7 @@ devices:
         device_class: temperature
         state_class: measurement
         entity_category: diagnostic
-        pre_commands: ["ATSH752", "ATCRA75A"]
+        pre_commands: ["ATSH752", "ATCRA652"]
         update_interval: 30s
       - key: battery_load
         mode: "22"
@@ -387,7 +387,7 @@ devices:
         unit: "%"
         state_class: measurement
         entity_category: diagnostic
-        pre_commands: ["ATSH752", "ATCRA75A"]
+        pre_commands: ["ATSH752", "ATCRA652"]
         update_interval: 30s
       - key: fuel_level
         mode: "22"
@@ -396,7 +396,7 @@ devices:
         unit: "L"
         state_class: measurement
         accuracy_decimals: 1
-        pre_commands: ["ATSH752", "ATCRA75A"]
+        pre_commands: ["ATSH752", "ATCRA652"]
         publish:
           deadband: 0.5
           min_interval: 30s
@@ -409,7 +409,7 @@ devices:
         unit: "L/100km"
         state_class: measurement
         accuracy_decimals: 1
-        pre_commands: ["ATSH752", "ATCRA75A"]
+        pre_commands: ["ATSH752", "ATCRA652"]
         update_interval: 5s
       - key: fuel_consumption_trip
         mode: "22"
@@ -419,7 +419,7 @@ devices:
         state_class: measurement
         accuracy_decimals: 1
         entity_category: diagnostic
-        pre_commands: ["ATSH752", "ATCRA75A"]
+        pre_commands: ["ATSH752", "ATCRA652"]
         update_interval: 30s
       - key: range_remaining
         mode: "22"
@@ -428,7 +428,7 @@ devices:
         unit: "km"
         device_class: distance
         state_class: measurement
-        pre_commands: ["ATSH752", "ATCRA75A"]
+        pre_commands: ["ATSH752", "ATCRA652"]
         publish:
           deadband: 2
           min_interval: 60s
@@ -441,7 +441,7 @@ devices:
         device_class: temperature
         state_class: measurement
         accuracy_decimals: 1
-        pre_commands: ["ATSH752", "ATCRA75A"]
+        pre_commands: ["ATSH752", "ATCRA652"]
         update_interval: 30s
       # Trip odometer probes — DISABLED pending PID verification (caused RX error on connect)
       # Re-enable one at a time to identify working PID
