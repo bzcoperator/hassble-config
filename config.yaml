@@ -208,9 +208,10 @@ devices:
   # Path C: OBD (ELM327) over BLE
   # ──────────────────────────────────────────────────────────────
 
-  # Peugeot 2008 1.6 HDi (2017) - PSA CAN mode 22 PIDs
-  # Vgate iCar Pro 2S (FFE0/FFE1). Engine ECU header 0x6A8, BSI header 0x752.
-  # PIDs sourced from nico1080/OBD-LCD-display-for-PSA (DS4 petrol base - some may need tuning on EDC17C60 diesel).
+  # Peugeot 2008 1.6 HDi (2017) - PSA EDC17C60 diesel, CAN mode 22 PIDs
+  # Vgate iCar Pro 2S BLE. Engine ECU: TX 0x6A8, RX 0x688 (PSA INJ-family addressing, NOT 7E0/7E8).
+  # BSI: TX 0x752, RX 0x652. Flow control must target 0x6A8 (ATFCSH6A8) for multi-frame responses.
+  # PIDs sourced from nico1080/OBD-LCD-display-for-PSA + FAPLite APK analysis.
   - id: psa_2008_hdi
     name: "Peugeot 2008 HDi"
     source: obd
@@ -227,8 +228,12 @@ devices:
         - "ATH0"
         - "ATSP6"
         - "ATSH6A8"
+        - "ATFCSH6A8"      # flow control source header — ECU expects FC from same address as request
+        - "ATFCSD300000"   # FC frame: ContinueToSend(30), block size 0, sep time 0ms
+        - "ATFCSM1"        # FC mode 1: use user-defined flow control (required for non-7E0 headers)
       default_commands:
         - "ATSH6A8"
+        - "ATFCSH6A8"
     sensors:
       - key: rpm
         mode: "22"
