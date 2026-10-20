@@ -219,7 +219,7 @@ devices:
       service_uuid: "18F0"
       tx_char_uuid: "2AF1"
       rx_char_uuid: "2AF0"
-      tx_delay: 100ms
+      tx_delay: 50ms
       init_commands:
         - "ATZ"
         - "ATE0"
@@ -345,109 +345,130 @@ devices:
         state_class: measurement
         accuracy_decimals: 0
         update_interval: 2s
-      # BSI — switch header to 0x752, receive filter to 0x652 (PSA BSI responds from 0x652, not 0x752+8=0x75A)
-      # Source: nico1080/OBD-LCD-display-for-PSA — CanRequest(0x752, 0x652, ...) confirms non-standard response address
-      # All BSI PIDs returned NO DATA with ATCRA75A — corrected to ATCRA652
-      - key: oil_temp
-        mode: "22"
-        pid: "DB83"
-        formula: "a-40"
-        unit: "°C"
-        device_class: temperature
-        state_class: measurement
-        pre_commands: ["ATSH752", "ATCRA652"]
-        update_interval: 10s
-      - key: oil_level
-        mode: "22"
-        pid: "DB84"
-        formula: "a"
-        unit: "%"
-        state_class: measurement
-        pre_commands: ["ATSH752", "ATCRA652"]
-        update_interval: 60s
-      - key: battery_voltage
-        mode: "22"
-        pid: "DA46"
-        formula: "(a*256+b)/1000"
-        unit: "V"
-        device_class: voltage
-        state_class: measurement
-        accuracy_decimals: 2
-        pre_commands: ["ATSH752", "ATCRA652"]
-        update_interval: 10s
-      - key: battery_temp
-        mode: "22"
-        pid: "DA47"
-        formula: "a-40"
-        unit: "°C"
-        device_class: temperature
-        state_class: measurement
-        entity_category: diagnostic
-        pre_commands: ["ATSH752", "ATCRA652"]
-        update_interval: 30s
-      - key: battery_load
-        mode: "22"
-        pid: "DA21"
-        formula: "a"
-        unit: "%"
-        state_class: measurement
-        entity_category: diagnostic
-        pre_commands: ["ATSH752", "ATCRA652"]
-        update_interval: 30s
+      # ── Mode 01 fallback ─────────────────────────────────────────────────────
+      # Standard OBD2 fuel level (PID 2F) — switch to 7DF broadcast header,
+      # default_commands resets back to 6A8 for subsequent ECU queries.
+      # NOTE: EDC17C60 diesel may not support this PID — will show "No data" if unsupported.
       - key: fuel_level
-        mode: "22"
-        pid: "D8C4"
-        formula: "(a*256+b)/100"
-        unit: "L"
+        mode: "01"
+        pid: "2F"
+        formula: "a/2.55"
+        unit: "%"
         state_class: measurement
-        accuracy_decimals: 1
-        pre_commands: ["ATSH752", "ATCRA652"]
+        accuracy_decimals: 0
+        pre_commands: ["ATSH7DF"]
         publish:
-          deadband: 0.5
+          deadband: 1
           min_interval: 30s
           heartbeat: 10m
-        update_interval: 30s
-      - key: fuel_consumption_instant
-        mode: "22"
-        pid: "D8C7"
-        formula: "(a*256+b)/10"
-        unit: "L/100km"
-        state_class: measurement
-        accuracy_decimals: 1
-        pre_commands: ["ATSH752", "ATCRA652"]
-        update_interval: 5s
-      - key: fuel_consumption_trip
-        mode: "22"
-        pid: "D8C8"
-        formula: "(a*256+b)/10"
-        unit: "L/100km"
-        state_class: measurement
-        accuracy_decimals: 1
-        entity_category: diagnostic
-        pre_commands: ["ATSH752", "ATCRA652"]
-        update_interval: 30s
-      - key: range_remaining
-        mode: "22"
-        pid: "D8E1"
-        formula: "a*256+b"
-        unit: "km"
-        device_class: distance
-        state_class: measurement
-        pre_commands: ["ATSH752", "ATCRA652"]
-        publish:
-          deadband: 2
-          min_interval: 60s
-        update_interval: 30s
-      - key: external_temp
-        mode: "22"
-        pid: "D912"
-        formula: "a*0.5-40"
-        unit: "°C"
-        device_class: temperature
-        state_class: measurement
-        accuracy_decimals: 1
-        pre_commands: ["ATSH752", "ATCRA652"]
-        update_interval: 30s
+        update_interval: 60s
+
+      # ── BSI (Body/Systems Interface) — DISABLED ───────────────────────────
+      # BSI is on MS-CAN (125 kbaud, OBD pins 3/11).
+      # iCar Pro 2S only connects to HS-CAN (500 kbaud, OBD pins 6/14).
+      # All 10 BSI PIDs return NO DATA — hardware bus mismatch, not an addressing issue.
+      # ATCRA652 is correct (BSI responds from 0x652), but the bus is unreachable.
+      # Re-enable only if using a dual-bus adapter wired to MS-CAN.
+      #- key: oil_temp
+      #  mode: "22"
+      #  pid: "DB83"
+      #  formula: "a-40"
+      #  unit: "°C"
+      #  device_class: temperature
+      #  state_class: measurement
+      #  pre_commands: ["ATSH752", "ATCRA652"]
+      #  update_interval: 10s
+      #- key: oil_level
+      #  mode: "22"
+      #  pid: "DB84"
+      #  formula: "a"
+      #  unit: "%"
+      #  state_class: measurement
+      #  pre_commands: ["ATSH752", "ATCRA652"]
+      #  update_interval: 60s
+      #- key: battery_voltage
+      #  mode: "22"
+      #  pid: "DA46"
+      #  formula: "(a*256+b)/1000"
+      #  unit: "V"
+      #  device_class: voltage
+      #  state_class: measurement
+      #  accuracy_decimals: 2
+      #  pre_commands: ["ATSH752", "ATCRA652"]
+      #  update_interval: 10s
+      #- key: battery_temp
+      #  mode: "22"
+      #  pid: "DA47"
+      #  formula: "a-40"
+      #  unit: "°C"
+      #  device_class: temperature
+      #  state_class: measurement
+      #  entity_category: diagnostic
+      #  pre_commands: ["ATSH752", "ATCRA652"]
+      #  update_interval: 30s
+      #- key: battery_load
+      #  mode: "22"
+      #  pid: "DA21"
+      #  formula: "a"
+      #  unit: "%"
+      #  state_class: measurement
+      #  entity_category: diagnostic
+      #  pre_commands: ["ATSH752", "ATCRA652"]
+      #  update_interval: 30s
+      #- key: bsi_fuel_level
+      #  mode: "22"
+      #  pid: "D8C4"
+      #  formula: "(a*256+b)/100"
+      #  unit: "L"
+      #  state_class: measurement
+      #  accuracy_decimals: 1
+      #  pre_commands: ["ATSH752", "ATCRA652"]
+      #  publish:
+      #    deadband: 0.5
+      #    min_interval: 30s
+      #    heartbeat: 10m
+      #  update_interval: 30s
+      #- key: fuel_consumption_instant
+      #  mode: "22"
+      #  pid: "D8C7"
+      #  formula: "(a*256+b)/10"
+      #  unit: "L/100km"
+      #  state_class: measurement
+      #  accuracy_decimals: 1
+      #  pre_commands: ["ATSH752", "ATCRA652"]
+      #  update_interval: 5s
+      #- key: fuel_consumption_trip
+      #  mode: "22"
+      #  pid: "D8C8"
+      #  formula: "(a*256+b)/10"
+      #  unit: "L/100km"
+      #  state_class: measurement
+      #  accuracy_decimals: 1
+      #  entity_category: diagnostic
+      #  pre_commands: ["ATSH752", "ATCRA652"]
+      #  update_interval: 30s
+      #- key: range_remaining
+      #  mode: "22"
+      #  pid: "D8E1"
+      #  formula: "a*256+b"
+      #  unit: "km"
+      #  device_class: distance
+      #  state_class: measurement
+      #  pre_commands: ["ATSH752", "ATCRA652"]
+      #  publish:
+      #    deadband: 2
+      #    min_interval: 60s
+      #  update_interval: 30s
+      #- key: external_temp
+      #  mode: "22"
+      #  pid: "D912"
+      #  formula: "a*0.5-40"
+      #  unit: "°C"
+      #  device_class: temperature
+      #  state_class: measurement
+      #  accuracy_decimals: 1
+      #  pre_commands: ["ATSH752", "ATCRA652"]
+      #  update_interval: 30s
       # Trip odometer probes — DISABLED pending PID verification (caused RX error on connect)
       # Re-enable one at a time to identify working PID
       #- key: trip_probe_d8c5
