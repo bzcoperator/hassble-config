@@ -345,23 +345,10 @@ devices:
         state_class: measurement
         accuracy_decimals: 0
         update_interval: 2s
-      # ── Mode 01 fallback ─────────────────────────────────────────────────────
-      # Standard OBD2 fuel level (PID 2F) — switch to 7DF broadcast header,
-      # default_commands resets back to 6A8 for subsequent ECU queries.
-      # NOTE: EDC17C60 diesel may not support this PID — will show "No data" if unsupported.
-      - key: fuel_level
-        mode: "01"
-        pid: "2F"
-        formula: "a/2.55"
-        unit: "%"
-        state_class: measurement
-        accuracy_decimals: 0
-        pre_commands: ["ATSH7DF"]
-        publish:
-          deadband: 1
-          min_interval: 30s
-          heartbeat: 10m
-        update_interval: 60s
+      # ── Fuel level — CONFIRMED INACCESSIBLE ──────────────────────────────────
+      # Mode 01 PID 2F (fuel tank level) is NOT SUPPORTED on this ECU.
+      # Verified from Car Scanner log: Mode 01 bitmap 983B8013 — bit for PID 2F is 0.
+      # Fuel level is on BSI (MS-CAN only). No fuel level sensor available via HS-CAN.
 
       # ── BSI (Body/Systems Interface) — DISABLED ───────────────────────────
       # BSI is on MS-CAN (125 kbaud, OBD pins 3/11).
@@ -491,45 +478,66 @@ devices:
       #  entity_category: diagnostic
       #  pre_commands: ["ATSH752"]
       #  update_interval: 30s
-      # DPF sensors — DISABLED pending PID verification (sourced from MD1CS003, unverified on EDC17C60)
-      # Try header 6AB instead of 6A8 if still NO DATA after re-enabling
-      #- key: dpf_soot_mass
-      #  mode: "22"
-      #  pid: "D526"
-      #  formula: "a"
-      #  unit: "%"
-      #  state_class: measurement
-      #  accuracy_decimals: 0
-      #  entity_category: diagnostic
-      #  update_interval: 60s
-      #- key: dpf_regen_distance
-      #  mode: "22"
-      #  pid: "D525"
-      #  formula: "a*256+b"
-      #  unit: "km"
-      #  device_class: distance
-      #  state_class: measurement
-      #  accuracy_decimals: 0
-      #  entity_category: diagnostic
-      #  update_interval: 60s
-      #- key: dpf_ash_rate
-      #  mode: "22"
-      #  pid: "D52F"
-      #  formula: "a"
-      #  unit: ""
-      #  state_class: measurement
-      #  accuracy_decimals: 0
-      #  entity_category: diagnostic
-      #  update_interval: 60s
-      #- key: dpf_damage_rate
-      #  mode: "22"
-      #  pid: "D532"
-      #  formula: "a"
-      #  unit: ""
-      #  state_class: measurement
-      #  accuracy_decimals: 0
-      #  entity_category: diagnostic
-      #  update_interval: 60s
+      # ── DPF sensors — VERIFIED working on EDC17C60 via Car Scanner log ─────────
+      # All four PIDs return positive (62) responses on HS-CAN with ATSH6A8.
+      # Formulas derived from Car Scanner log bytes cross-referenced with displayed values.
+      - key: dpf_soot_mass
+        mode: "22"
+        pid: "D526"
+        # Log bytes: 36 01 00 → LE16 = 310 → 310/10 = 31.0 g  (Car Scanner showed 29.5 g)
+        formula: "(a + b*256) / 10.0"
+        unit: "g"
+        state_class: measurement
+        accuracy_decimals: 1
+        entity_category: diagnostic
+        publish:
+          deadband: 0.5
+          min_interval: 60s
+          heartbeat: 30m
+        update_interval: 60s
+      - key: dpf_regen_distance
+        mode: "22"
+        pid: "D525"
+        # Log bytes: 6A 0B 00 → LE16 = 0x0B6A = 2922 km since last regen
+        formula: "a + b*256"
+        unit: "km"
+        device_class: distance
+        state_class: total_increasing
+        accuracy_decimals: 0
+        entity_category: diagnostic
+        publish:
+          deadband: 5
+          min_interval: 60s
+          heartbeat: 30m
+        update_interval: 60s
+      - key: dpf_ash_load
+        mode: "22"
+        pid: "D52F"
+        # Log bytes: 2C 01 00 → LE16 = 300 — unit/scaling unconfirmed, raw value only
+        formula: "a + b*256"
+        unit: ""
+        state_class: measurement
+        accuracy_decimals: 0
+        entity_category: diagnostic
+        publish:
+          deadband: 1
+          min_interval: 300s
+          heartbeat: 1h
+        update_interval: 300s
+      - key: dpf_damage_index
+        mode: "22"
+        pid: "D532"
+        # Log bytes: 00 00 00 → 0 (DPF healthy). Multi-byte, LE16 used.
+        formula: "a + b*256"
+        unit: ""
+        state_class: measurement
+        accuracy_decimals: 0
+        entity_category: diagnostic
+        publish:
+          deadband: 1
+          min_interval: 300s
+          heartbeat: 1h
+        update_interval: 300s
 
   - id: car_obd
     name: "Vehicle OBD"
