@@ -244,7 +244,8 @@ devices:
         update_interval: 2s
       - key: gear
         mode: "22"
-        pid: "D409"
+        pid: "D43B"
+        # D43B confirmed in Car Scanner log (62D43B0000 = gear 0 neutral); D409 not queried by Car Scanner
         formula: "a"
         unit: ""
         state_class: measurement
@@ -252,7 +253,10 @@ devices:
       - key: water_temp
         mode: "22"
         pid: "D40A"
-        formula: "a*256+b"
+        # ⚠ FORMULA UNVERIFIED — a*256+b returns raw 16-bit count, not °C
+        # EDC17 pattern: (a*256+b)/16 - 40 (at 87°C → raw=2032 → 2032/16-40=87) — likely correct
+        # Cross-check: Mode 01 PID 05 at warm idle = 85–90°C. If live value looks like 5000, flip to (a*256+b)/16-40
+        formula: "(a*256+b)/16 - 40"
         unit: "°C"
         device_class: temperature
         state_class: measurement
@@ -260,7 +264,8 @@ devices:
       - key: water_temp_setpoint
         mode: "22"
         pid: "D40D"
-        formula: "a*256+b"
+        # ⚠ FORMULA UNVERIFIED — same scaling assumption as D40A
+        formula: "(a*256+b)/16 - 40"
         unit: "°C"
         device_class: temperature
         state_class: measurement
@@ -268,11 +273,12 @@ devices:
         update_interval: 30s
       # intake_air_temp: D411 = MAP temperature (NRC 31 on EDC17C60, not supported)
       # D414 = actual intake air temp (2 bytes) — sourced from nico1080/OBD-LCD-display-for-PSA
-      # Formula unknown for diesel — using raw value initially to observe; adjust once data is seen
       - key: intake_air_temp
         mode: "22"
         pid: "D414"
-        formula: "a*256+b"
+        # ⚠ FORMULA UNVERIFIED — same EDC17 scaling assumption as D40A
+        # Cross-check: Mode 01 PID 0F at warm idle = 40–42°C
+        formula: "(a*256+b)/16 - 40"
         unit: "°C"
         device_class: temperature
         state_class: measurement
